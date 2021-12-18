@@ -1,26 +1,44 @@
 import AppLoading from "expo-app-loading";
 import React, { useState } from "react";
-import { Text } from "react-native";
+import * as Font from "expo-font";
+import { Text, Image } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { Asset } from "expo-asset";
+import { NavigationContainer } from "@react-navigation/native";
+import Tabs from "./navigation/Tabs";
+
+//font의 배열을 주면, Font.loadAsync(font)로 이루어진 배열 return할 것
+const loadFonts = (fonts) => fonts.map((font) => Font.loadAsync(font));
+
+const loadImages = (images) =>
+  images.map((image) => {
+    if (typeof image === "string") {
+      return Image.prefetch(image);
+    } else {
+      return Asset.loadAsync(image);
+    }
+  });
 
 export default function App() {
   const [ready, setReady] = useState(false);
-
-  // props
   const onFinish = () => setReady(true);
-  //startAsync
   const startLoading = async () => {
-    //여기에 await. preload. 어플 화면이 뜨기 전에 여기서 호출할 것들. 아이콘 등등...
-    await new Promise((resolve) => setTimeout(resolve, 10000));
+    const fonts = loadFonts([Ionicons.font]);
+    await Promise.all([...fonts]);
   };
-
   if (!ready) {
     return (
       <AppLoading
         startAsync={startLoading}
         onFinish={onFinish}
-        onError={console.log}
+        onError={console.error}
       />
     );
   }
-  return <Text>We are done Loading</Text>;
+  return (
+    <NavigationContainer>
+      <Tabs />
+    </NavigationContainer>
+  );
+  // return <Text>We are done Loading</Text>;
 }
